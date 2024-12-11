@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useRef } from "react";
 import { useCallback } from "react";
 import { useState } from "react";
 
@@ -7,6 +9,8 @@ function App() {
   const [characterAllowed, setCharacterAllowed] = useState(false);
   const [password, setPassword] = useState("");
 
+  // useRef hook
+  const passwordRef = useRef(null);
   // This method will be called, each time one of the dependencies changes
   const passwordGenerator = useCallback(() => {
     let pass = "";
@@ -26,6 +30,16 @@ function App() {
     setPassword(pass);
   }, [length, numberAllowed, characterAllowed, setPassword]);
 
+  // Copying password to clipboard
+  const copyPassword = useCallback(() => {
+    passwordRef.current?.select();
+    window.navigator.clipboard.writeText(password);
+  }, [password]);
+
+  // useEffect used to call the function whenever dependencies change
+  useEffect(() => {
+    passwordGenerator();
+  }, [length, numberAllowed, characterAllowed, passwordGenerator]);
   return (
     <>
       <h1 className="text-4xl text-center text-orange-500 mt-5">
@@ -42,10 +56,12 @@ function App() {
             className="outline-none w-full py-1 px-3 my-4 rounded-lg"
             placeholder="Password"
             readOnly
+            ref={passwordRef}
           />
           <button
             className="outline-none bg-blue-400 text-white
           px-3 py-1 my-4 mx-2 rounded-lg"
+            onClick={copyPassword}
           >
             Copy
           </button>
